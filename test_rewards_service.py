@@ -1,6 +1,6 @@
+import json
 import pytest
 import unittest
-import requests
 from flask import current_app
 from rewards_service import app
 
@@ -24,16 +24,75 @@ class TestRewardService(unittest.TestCase):
     def test_02_app_post_transaction(self):
         # test for the route responsible for posting transaction objects
         # to app's data store
-        assert 'placeholder' == 'placeholder'
+
+        # test 1: positive points
+        result = self.client.post(
+            '/api/v1/account',
+            json={"payer": "KRAFT",
+                  "points": 3000,
+                  "timestamp": "2022-01-03T15:00:00Z"}
+        )
+        response = json.loads(result.get_data(as_text=True))
+        expected = [{'payer': 'KRAFT',
+                     'points': 3000,
+                     'timestamp': '2022-01-03T15:00:00Z'}]
+
+        assert response == expected
+        assert result.status_code == 200
+
+        # test 2: negative points
+        result2 = self.client.post(
+            '/api/v1/account',
+            json={"payer": "KRAFT",
+                  "points": -500,
+                  "timestamp": "2022-01-05T16:00:00Z"}
+        )
+
+        response2 = json.loads(result2.get_data(as_text=True))
+        expected2 = [{'payer': 'KRAFT',
+                      'points': 2500,
+                      'timestamp': '2022-01-05T16:00:00Z'}]
+
+        assert response2 == expected2
+        assert result2.status_code == 200
 
     def test_03_post_payout(self):
         # test for the route that will post consumer point redemption requests
-        assert 'placeholder' == 'placeholder'
+
+        # test 1: request for a deliverable amount of points
+        result = self.client.post(
+            '/api/v1/account/rewards',
+            json={"points": 2000}
+        )
+        response = json.loads(result.get_data(as_text=True))
+        print(response)
+        expected = [{'payer': 'KRAFT', 'points': -2000}]
+
+        assert response == expected
+        assert result.status_code == 200
+
+        # test 2: request for an undeliverable amount of points
+        result = self.client.post(
+            '/api/v1/account/rewards',
+            json={"points": 10000}
+        )
+        response = json.loads(result.get_data(as_text=True))
+        print(response)
+        expected = 'Request rejected.  Insufficient points.'
+
+        assert response == expected
+        assert result.status_code == 400
 
     def test_04_get_balance(self):
         # test for the route that will provide the payer balances in a
         # dictionary
-        assert 'placeholder' == 'placeholder'
+
+        result = self.client.get('/api/v1/account')
+        response = json.loads(result.get_data(as_text=True))
+        expected = {'KRAFT': 500}
+
+        assert response == expected
+        assert result.status_code == 200
 
 
 if __name__ == "__main__":
