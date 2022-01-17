@@ -4,4 +4,4 @@ from api import app
 app = app.create_app(__name__)
 
 if (__name__) == '__main__':
-    app.run()
+    app.run(port=app.config['PORT'])
