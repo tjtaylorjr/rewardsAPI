@@ -1,6 +1,6 @@
 from flask import Blueprint, Response
 
-root = Blueprint("root", __name__)
+root = Blueprint('root', __name__)
 
 
 @root.get('/')

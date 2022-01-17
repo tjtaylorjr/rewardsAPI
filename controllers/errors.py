@@ -1,6 +1,6 @@
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response
 
-errors = Blueprint("errors", __name__)
+errors = Blueprint('errors', __name__)
 
 
 @errors.app_errorhandler(404)
