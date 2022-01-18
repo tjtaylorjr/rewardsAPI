@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, jsonify, request
 import json
 from datetime import datetime
-from utils import count_points, time_sort, spend_points
+from utils import time_sort, spend_points, update_balance
 import models as db
 
 ledger = Blueprint('ledger', __name__, url_prefix='/api/v1')
@@ -9,9 +9,10 @@ ledger = Blueprint('ledger', __name__, url_prefix='/api/v1')
 # a function that returns the current point balances for each payer
 @ledger.get('/account')
 def get_balance():
-    transactions = db.transactions
-    balance = count_points(transactions)
-
+    balance = db.balance
+    # transactions = db.transactions
+    # balance = db.balance
+    # balance = count_points(transactions)
     return balance
 
 
@@ -20,13 +21,17 @@ def get_balance():
 @ledger.post('/account')
 def post_transaction():
     records = db.transactions
+    balance = db.balance
 
     payload = request.get_json()
     if payload['points'] > 0:
         records.append(payload)
         time_sort(records)
 
-        return {'payer': payload['payer'], 'points': payload['points']}
+        credit = {'payer': payload['payer'], 'points': payload['points']}
+        update_balance([credit])
+
+        return credit
     else:
         payout = abs(payload['points'])
         payer = payload['payer']
@@ -34,8 +39,9 @@ def post_transaction():
         payer_lst = [item for item in records if item['payer'] == payer]
         time_sort(payer_lst)
 
-        balance = count_points(payer_lst)
-        if sum(balance.values()) < payout:
+        # payer_funds = count_points(payer_lst)
+        # sum(payer_funds.values())
+        if balance[payer] < payout:
             return Response(
                 'Request rejected. Insufficient points to complete this transaction.', status=400
             )
@@ -49,7 +55,9 @@ def post_transaction():
             else:
                 funds['points'] = data['points']
 
-        return data['debit']
+        debit = data['debit']
+        update_balance([debit])
+        return debit
 
 
 #a function that posts redemption requests from the account holder.
@@ -62,8 +70,10 @@ def post_redemption():
     payout = payload['points']
 
     debits = []
-    balance = count_points(records)
+    # record_funds = count_points(records)
 
+    # total_funds = sum(record_funds.values())
+    balance = db.balance
     total_funds = sum(balance.values())
     if total_funds >= payout:
         while payout > 0:
@@ -81,6 +91,7 @@ def post_redemption():
 
             debits.append(data['debit'])
 
+        update_balance(debits)
         return jsonify(debits)
     else:
         return Response(

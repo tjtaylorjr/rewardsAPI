@@ -2,4 +2,5 @@
 # dedicated database.  Replace with actual db table/structure/class model
 # implimentation(s).
 
+balance = {}
 transactions = []

@@ -1,19 +1,18 @@
+import models as db
 
+# a helper function that will tally a list of transaction points
+# def count_points(lst):
+#     totals = {}
+#     for item in lst:
+#         points = item['points']
+#         payer = item['payer']
 
-# a helper function that will tally all current points on the account for each
-# payer
-def count_points(lst):
-    totals = {}
-    for item in lst:
-        points = item['points']
-        payer = item['payer']
+#         if payer not in totals:
+#             totals[payer] = points
+#         else:
+#             totals[payer] += points
 
-        if payer not in totals:
-            totals[payer] = points
-        else:
-            totals[payer] += points
-
-    return totals
+#     return totals
 
 
 # a helper function to consume transaction points.  Provides logic to
@@ -44,3 +43,19 @@ def spend_points(payout, funds):
 def time_sort(lst):
     lst.sort(key=lambda item: item.get('timestamp'))
     return lst
+
+
+# a helper function to pass data to the balance data store during transactions
+def update_balance(records):
+    balance = db.balance
+
+    for record in records:
+        payer = record['payer']
+        points = record['points']
+
+        if payer not in balance:
+            balance[payer] = points
+        else:
+            balance[payer] += points
+
+    return balance
