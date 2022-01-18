@@ -112,7 +112,7 @@ pipenv run python3 test_rewards_service.py
 Otherwise skip right to running the web service in development mode with
 
 ```console
-pipenv run python3 rewards_service.py
+pytest -v
 ```
 
 ### Testing the endpoints
