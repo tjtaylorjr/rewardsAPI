@@ -1,4 +1,4 @@
-# Rewards API
+# Prototype Rewards API
 
 ## __Setup and Installation__
 
