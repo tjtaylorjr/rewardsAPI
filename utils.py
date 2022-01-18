@@ -1,19 +1,5 @@
 import models as db
 
-# a helper function that will tally a list of transaction points
-# def count_points(lst):
-#     totals = {}
-#     for item in lst:
-#         points = item['points']
-#         payer = item['payer']
-
-#         if payer not in totals:
-#             totals[payer] = points
-#         else:
-#             totals[payer] += points
-
-#     return totals
-
 
 # a helper function to consume transaction points.  Provides logic to
 # determine how points are spend and in what order.

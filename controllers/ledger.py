@@ -10,9 +10,7 @@ ledger = Blueprint('ledger', __name__, url_prefix='/api/v1')
 @ledger.get('/account')
 def get_balance():
     balance = db.balance
-    # transactions = db.transactions
-    # balance = db.balance
-    # balance = count_points(transactions)
+
     return balance
 
 
@@ -39,8 +37,6 @@ def post_transaction():
         payer_lst = [item for item in records if item['payer'] == payer]
         time_sort(payer_lst)
 
-        # payer_funds = count_points(payer_lst)
-        # sum(payer_funds.values())
         if balance[payer] < payout:
             return Response(
                 'Request rejected. Insufficient points to complete this transaction.', status=400
@@ -70,9 +66,7 @@ def post_redemption():
     payout = payload['points']
 
     debits = []
-    # record_funds = count_points(records)
-
-    # total_funds = sum(record_funds.values())
+    
     balance = db.balance
     total_funds = sum(balance.values())
     if total_funds >= payout:
