@@ -1,3 +1,3 @@
 from .errors import errors
-from .rewards import rewards
+from .ledger import ledger
 from .root import root
