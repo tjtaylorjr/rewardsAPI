@@ -1,3 +1,4 @@
+from operator import itemgetter
 import models as db
 
 
@@ -32,16 +33,16 @@ def time_sort(lst):
 
 
 # a helper function to pass data to the balance data store during transactions
-def update_balance(records):
-    balance = db.balance
+def update_balance(trnxcs):
+    bal = db.balance
 
-    for record in records:
-        payer = record['payer']
-        points = record['points']
+    for trnxc in trnxcs:
+        payer, points = itemgetter(
+            'payer', 'points')(trnxc)
 
-        if payer not in balance:
-            balance[payer] = points
+        if payer not in bal:
+            bal[payer] = points
         else:
-            balance[payer] += points
+            bal[payer] += points
 
-    return balance
+    return bal
