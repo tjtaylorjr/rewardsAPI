@@ -27,7 +27,7 @@ def spend_points(payout, funds):
 # a simple helper function that sorts a list of dictionaries by the timestamp
 # keys
 def time_sort(lst):
-    lst.sort(key=lambda item: item.get('timestamp'))
+    lst.sort(key=lambda item: item.get('timestamp'), reverse=True)
     return lst
 
 

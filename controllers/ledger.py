@@ -1,4 +1,5 @@
 from flask import Blueprint, Response, jsonify, request
+from operator import itemgetter
 import json
 from datetime import datetime
 from utils import time_sort, spend_points, update_balance
@@ -18,40 +19,43 @@ def get_balance():
 # the service's data store.
 @ledger.post('/account')
 def post_transaction():
-    records = db.transactions
-    balance = db.balance
+    trans = db.transactions
+    bal = db.balance
 
     payload = request.get_json()
-    if payload['points'] > 0:
-        records.append(payload)
-        time_sort(records)
+    payer, points = itemgetter(
+        'payer', 'points')(payload)
 
-        credit = {'payer': payload['payer'], 'points': payload['points']}
+    if points > 0:
+        trans.append(payload)
+        time_sort(trans)
+
+        credit = {'payer': payer, 'points': points}
         update_balance([credit])
 
         return credit
     else:
-        payout = abs(payload['points'])
-        payer = payload['payer']
+        payout = abs(points)
+        payr_lst = [item for item in trans if item['payer'] == payer]
+        time_sort(payr_lst)
 
-        payer_lst = [item for item in records if item['payer'] == payer]
-        time_sort(payer_lst)
-
-        if balance[payer] < payout:
+        if bal[payer] < payout:
             return Response(
                 'Request rejected. Insufficient points to complete this transaction.', status=400
             )
 
         while payout > 0:
-            funds = payer_lst[0]
+            funds = payr_lst[-1]
             data = spend_points(payout, funds)
-            payout = data['payout']
-            if data['points'] == 0:
-                payer_lst.pop(0)
+            debit, d_payout, d_points = itemgetter(
+                'debit', 'payout', 'points')(data)
+            payout = d_payout
+            if d_points == 0:
+                payr_lst.pop()
             else:
-                funds['points'] = data['points']
-
-        debit = data['debit']
+                funds['points'] = d_points
+                print(funds['points'])
+                print(payr_lst[-1])
         update_balance([debit])
         return debit
 
@@ -66,7 +70,7 @@ def post_redemption():
     payout = payload['points']
 
     debits = []
-    
+
     balance = db.balance
     total_funds = sum(balance.values())
     if total_funds >= payout:

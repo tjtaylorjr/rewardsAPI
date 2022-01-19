@@ -104,7 +104,7 @@ Now we are ready to run the development server.
 If you would like to run the test file to make sure everything passes, you can do so with:
 
 ```console
-pipenv run python3 test_rewards_service.py
+pytest -v
 ```
 
 ### Start the server
@@ -112,7 +112,7 @@ pipenv run python3 test_rewards_service.py
 Otherwise skip right to running the web service in development mode with
 
 ```console
-pytest -v
+pipenv run python3 rewards_service.py
 ```
 
 ### Testing the endpoints
@@ -149,7 +149,9 @@ http://localhost:7000/api/v1/account/rewards
 
 This endpoint takes a json formatted object representing points the consumer wishes to redeem.
 
-{"points": 5000}
+{
+    "points": 5000
+}
 
 ### Shut the server down
 ---
